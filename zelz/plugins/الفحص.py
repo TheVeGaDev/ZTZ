@@ -1,98 +1,96 @@
+#بنيتيM
 import random
 import re
 import time
-import psutil
 from datetime import datetime
 from platform import python_version
 
-import requests
 from telethon import version
 from telethon.errors.rpcerrorlist import (
     MediaEmptyError,
     WebpageCurlFailedError,
     WebpageMediaEmptyError,
 )
-
-from . import StartTime, zedub, zedversion
+from telethon.events import CallbackQuery
 
 from ..Config import Config
-from ..core.managers import edit_or_reply
-from ..helpers.functions import zedalive, check_data_base_heal_th, get_readable_time
+
 from ..helpers.utils import reply_id
-from ..sql_helper.globals import gvarstatus
+from .sql_helper.globals import gvarstatus
+from resources.strings import *
+from . import ALIVE_NAME, StartTime, get_readable_time, mention
+from . import reply_id as rd
 
-plugin_category = "العروض"
-STATS = gvarstatus("Z_STATS") or "فحص"
+
+def check_data_base_heal_th():
+    is_database_working = False
+    output = "لم يتم تعيين قاعدة بيانات"
+    if not Config.DB_URI:
+        return is_database_working, output
+    from userbot.plugins.sql_helper import SESSION
+
+    try:
+        SESSION.execute("SELECT 1")
+    except Exception as e:
+        output = f"❌ {str(e)}"
+        is_database_working = False
+    else:
+        output = "تعمل بنجاح"
+        is_database_working = True
+    return is_database_working, output
 
 
-@zedub.zed_cmd(pattern=f"{STATS}$")
-async def zed_alive(event):
+@zedthon.on(admin_cmd(outgoing=True, pattern="فحص$"))
+@zedthon.on(sudo_cmd(pattern="فحص$", allow_sudo=True))
+async def zelzalalive(event):
     reply_to_id = await reply_id(event)
     uptime = await get_readable_time((time.time() - StartTime))
-    boot_time_timestamp = psutil.boot_time()
-    bt = datetime.fromtimestamp(boot_time_timestamp)
     start = datetime.now()
-    zedevent = await edit_or_reply(event, "**⎆┊جـاري .. فحـص البـوت الخـاص بك**")
+    await edit_or_reply(event, "**⎆┊جـاري .. فحـص البـوت الخـاص بك**")
     end = datetime.now()
     ms = (end - start).microseconds / 1000
     _, check_sgnirts = check_data_base_heal_th()
-    if gvarstatus("z_date") is not None:
-        zzd = gvarstatus("z_date")
-        zzt = gvarstatus("z_time")
-        zedda = f"{zzd}┊{zzt}"
-    else:
-        zedda = f"{bt.year}/{bt.month}/{bt.day}"
-    Z_EMOJI = gvarstatus("ALIVE_EMOJI") or "✥┊"
-    ALIVE_TEXT = gvarstatus("ALIVE_TEXT") or "** بـوت  زدثــون 𝗭𝗧𝗵𝗼𝗻  يعمـل .. بنجـاح ☑️ 𓆩 **"
-    ZED_IMG = gvarstatus("ALIVE_PIC")
-    USERID = zedub.uid if Config.OWNER_ID == 0 else Config.OWNER_ID
-    ALIVE_NAME = gvarstatus("ALIVE_NAME") if gvarstatus("ALIVE_NAME") else Config.ALIVE_NAME
-    mention = f"[{ALIVE_NAME}](tg://user?id={USERID})"
-    zed_caption = gvarstatus("ALIVE_TEMPLATE") or zed_temp
+    Z_EMOJI = Config.CUSTOM_ALIVE_EMOJI or "⎆┊"
+    ALIVE_TEXT = Config.CUSTOM_ALIVE_TEXT or "** بـوت  زدثــون 𝙕𝞝𝘿𝙏𝙃𝙊𝙉  يعمـل .. بنجـاح ☑️ 𓆩 **"
+    ZZL_IMG = Config.ALIVE_PIC or "https://telegra.ph/file/4c406eb5e6932d4834947.jpg"
+    zed_caption = Config.ZED_MEDIA or zedmp
     caption = zed_caption.format(
         ALIVE_TEXT=ALIVE_TEXT,
         Z_EMOJI=Z_EMOJI,
         mention=mention,
         uptime=uptime,
-        zedda=zzd,
-        zzd=zzd,
-        zzt=zzt,
         telever=version.__version__,
-        zdver=zedversion,
+        zdver="7.7.3",
         pyver=python_version(),
         dbhealth=check_sgnirts,
         ping=ms,
     )
-    if ZED_IMG:
-        ZED = [x for x in ZED_IMG.split()]
-        PIC = random.choice(ZED)
+    if ZZL_IMG:
+        ZZL = [x for x in ZZL_IMG.split()]
+        PIC = random.choice(ZZL)
         try:
             await event.client.send_file(
                 event.chat_id, PIC, caption=caption, reply_to=reply_to_id
             )
-            await zedevent.delete()
+            await event.delete()
         except (WebpageMediaEmptyError, MediaEmptyError, WebpageCurlFailedError):
             return await edit_or_reply(
-                zedevent,
-                f"**⌔∮ عـذراً عليـك الـرد ع صـوره او ميـديـا  ⪼  `.اضف صورة الفحص` <بالرد ع الصـوره او الميـديـا> ",
+                event,
+                f"**⎆┊هنـالك خطـأ بـ رابـط الميديـا **\n⎆┊قم بتغييـر الرابـط باستخـدام الامـر  \n⎆┊ `.اضف_فار ALIVE_PIC رابط صورتك`\n\n**⎆┊لا يمـكن الحـصول عـلى صـورة من الـرابـط :-** `{PIC}`",
             )
     else:
         await edit_or_reply(
-            zedevent,
+            event,
             caption,
         )
 
 
-zed_temp = """
-┏───────────────┓
-│ ◉ sᴏʀᴄᴇ ᴢᴛʜᴏɴ ɪs ʀᴜɴɴɪɴɢ ɴᴏᴡ
-┣───────────────┫
-│ ● ɴᴀᴍᴇ ➪  {mention}
-│ ● ᴢᴛʜᴏɴ ➪ {telever}
-│ ● ᴘʏᴛʜᴏɴ ➪ {pyver}
-│ ● ᴘʟᴀᴛғᴏʀᴍ ➪ 𐋏ᥱr᧐κᥙ
-│ ● ᴘɪɴɢ ➪ {ping}
-│ ● ᴜᴘ ᴛɪᴍᴇ ➪ {uptime}
-│ ● ᴀʟɪᴠᴇ sɪɴᴇᴄ ➪ {zedda}
-│ ● ᴍʏ ᴄʜᴀɴɴᴇʟ ➪ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://t.me/ZThon)
-┗───────────────┛"""
+zedmp = """{ALIVE_TEXT}
+
+**{Z_EMOJI} قاعدۿ البيانات :** تعمل بنـجاح
+**{Z_EMOJI} إصـدار التـيليثون :** `{telever}`
+**{Z_EMOJI} إصـدار زدثــون :** `{zdver}`
+**{Z_EMOJI} إصـدار البـايثون :** `{pyver}`
+**{Z_EMOJI} الوقـت :** `{uptime}`
+**{Z_EMOJI} المسـتخدم:** {mention}
+**{Z_EMOJI} قنـاة السـورس :** [اضغـط هنـا](https://t.me/ZedThon)"""

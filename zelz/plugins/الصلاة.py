@@ -1,25 +1,12 @@
 """ Command: اوقات الصلاة لعواصم الدول باللغـة العربيـة
-Credit: T.me/ZThon
+Credit: @ZedThon
 @zzzzl1l - كتـابـة الملـف :  زلــزال الهيبــه"""
 
 import json
 import requests
-from . import zedub
-from ..core.logger import logging
+from . import *
 
-from ..Config import Config
-from ..core.managers import edit_delete, edit_or_reply
-
-plugin_category = "البحث"
-
-@zedub.zed_cmd(
-    pattern="صلاة ([\s\S]*)",
-    command=("صلاة", plugin_category),
-    info={
-        "header": "اوقـات الصـلاة لـ عواصـم الـدول العـربيـة",
-        "الاستـخـدام": "{tr}صلاة + العاصمـة",
-    },
-)
+@zedthon.on(admin_cmd(pattern="صلاة(?: |$)(.*)"))
 async def get_adzan(adzan):
     ZELZAL = adzan.pattern_match.group(1)
     if ZELZAL == "صنعاء" or ZELZAL == "اليمن":
@@ -47,7 +34,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "مصر" or ZELZAL == "القاهرة" or ZELZAL == "القاهره":
@@ -75,7 +62,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "بغداد" or ZELZAL == "العراق":
@@ -103,7 +90,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "دمشق" or ZELZAL == "سوريا":
@@ -131,7 +118,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "الدوحه" or ZELZAL == "قطر":
@@ -159,7 +146,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "مسقط" or ZELZAL == "سلطنه عمان":
@@ -187,7 +174,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "مكه" or ZELZAL == "السعوديه":
@@ -215,7 +202,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "بيروت" or ZELZAL == "لبنان":
@@ -243,7 +230,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "عمان" or ZELZAL == "الاردن":
@@ -271,7 +258,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "الرباط" or ZELZAL == "المغرب":
@@ -299,7 +286,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "الخرطوم" or ZELZAL == "السودان":
@@ -327,7 +314,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "بنغازي" or ZELZAL == "ليبيا":
@@ -355,7 +342,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "تونس":
@@ -383,7 +370,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
     elif ZELZAL == "ازمير" or ZELZAL == "اسطنبول" or ZELZAL == "انقره" or ZELZAL == "تركيا":
@@ -411,7 +398,7 @@ async def get_adzan(adzan):
 	            \n<b>المـغرب  : <b>{result['results']['datetime'][0]['times']['Maghrib']}</b>\
 	            \n<b>العشـاء     : <b>{result['results']['datetime'][0]['times']['Isha']}</b>\
 	            \n<b>منتـصف الليل : <b>{result['results']['datetime'][0]['times']['Midnight']}</b>\
-		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡╎@ZThon\
+		        \n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon\
 	    "
 	    await edit_or_reply(adzan, zedthonresult, "html")
 

@@ -5,24 +5,19 @@ import os
 import time
 from datetime import datetime
 
-from . import zedub
-
-from ..Config import Config
-from ..core.managers import edit_delete, edit_or_reply
-from ..helpers.utils import reply_id
 from . import progress, reply_id
 
 thumb_image_path = Config.TMP_DOWNLOAD_DIRECTORY + "thumb_image.jpg"
 
-blocked_word = ["وقتي", "الوقتي", "تلقائي", "التلقائي"]
 
-@zedub.zed_cmd(pattern="rename (.*)")
+@bot.on(admin_cmd(pattern="rename (.*)"))
+@bot.on(sudo_cmd(pattern="rename (.*)", allow_sudo=True))
 async def _(event):
     if event.fwd_from:
         return
-    zedevent = await edit_or_reply(
+    catevent = await edit_or_reply(
         event,
-        "**⌔∮جـارِ إعادة تسميـة الـميديا ▬▭ ...🧸♥️𓆰**\n\n**⌔∮قد يستغرق الأمر بضع دقـائق إذا كان حجـم الملف كبيـراً**",
+        "**⌔∮جـارِ إعادة تسميـة الـميديا ▬▭ ...🧸♥️𓆰  قد يستغرق الأمر بضع دقـائق إذا كان حجـم الملف كبيـراً**",
     )
     input_str = event.pattern_match.group(1)
     if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
@@ -38,33 +33,34 @@ async def _(event):
             reply_message,
             downloaded_file_name,
             progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-                progress(d, t, zedevent, c_time, "جـارِ التنزيـل...", file_name)
+                progress(d, t, catevent, c_time, "جـارِ التنزيـل...", file_name)
             ),
         )
         end = datetime.now()
         ms = (end - start).seconds
         if os.path.exists(downloaded_file_name):
-            await zedevent.edit(
+            await catevent.edit(
                 f"**File Downloaded in {ms} seconds.**\n**File location : **`{downloaded_file_name}`"
             )
         else:
-            await zedevent.edit("Error Occurred\n {}".format(input_str))
+            await catevent.edit("Error Occurred\n {}".format(input_str))
     else:
-        await zedevent.edit(
+        await catevent.edit(
             "**Syntax : ** `.rename file.name` as reply to a Telegram media"
         )
 
 
-@zedub.zed_cmd(pattern="إسم (.*)")
+@bot.on(admin_cmd(pattern="إسم (.*)"))
+@bot.on(sudo_cmd(pattern="إسم (.*)", allow_sudo=True))
 async def _(event):
     if event.fwd_from:
         return
     thumb = None
     if os.path.exists(thumb_image_path):
         thumb = thumb_image_path
-    zedevent = await edit_or_reply(
+    catevent = await edit_or_reply(
         event,
-        "**⌔∮جـارِ إعادة تسميـة الـميديا ▬▭ ...🧸♥️𓆰**\n\n**⌔∮قد يستغرق الأمر بضع دقـائق إذا كان حجـم الملف كبيـراً**",
+        "**⌔∮جـارِ إعادة تسميـة الـميديا ▬▭ ...🧸♥️𓆰  قد يستغرق الأمر بضع دقـائق إذا كان حجـم الملف كبيـراً**",
     )
     reply_to_id = await reply_id(event)
     input_str = event.pattern_match.group(1)
@@ -81,7 +77,7 @@ async def _(event):
             reply_message,
             downloaded_file_name,
             progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-                progress(d, t, zedevent, c_time, "جـارِ التنزيـل...", file_name)
+                progress(d, t, catevent, c_time, "جـارِ التنزيـل...", file_name)
             ),
         )
         end = datetime.now()
@@ -109,30 +105,33 @@ async def _(event):
             end_two = datetime.now()
             os.remove(downloaded_file_name)
             ms_two = (end_two - end).seconds
-            await zedevent.edit(
+            await catevent.edit(
                 f"**⌔∮تم تنزيل الملف بتنسيق** {ms_one} **ثوان.**\n**تم التنزيل في** {ms_two} **ثوان.**"
             )
             await asyncio.sleep(3)
-            await zedevent.delete()
+            await catevent.delete()
         else:
-            await zedevent.edit("File Not Found {}".format(input_str))
+            await catevent.edit("File Not Found {}".format(input_str))
+    else:
+        await catevent.edit(
+            "**Syntax : **`.rnupload file.name` as reply to a Telegram media"
+        )
 
 
-@zedub.zed_cmd(pattern="اسم (.*)")
+@bot.on(admin_cmd(pattern="اسم (.*)"))
+@bot.on(sudo_cmd(pattern="اسم (.*)", allow_sudo=True))
 async def _(event):
     if event.fwd_from:
-        return
-    reply_to_id = await reply_id(event)
-    input_str = event.pattern_match.group(1)
-    if input_str in blocked_word:
         return
     thumb = None
     if os.path.exists(thumb_image_path):
         thumb = thumb_image_path
-    zedevent = await edit_or_reply(
+    catevent = await edit_or_reply(
         event,
-        "**⌔∮جـارِ إعادة تسميـة الـميديا ▬▭ ...🧸♥️𓆰**\n\n**⌔∮قد يستغرق الأمر بضع دقـائق إذا كان حجـم الملف كبيـراً**",
+        "**⌔∮جـارِ إعادة تسميـة الـميديا ▬▭ ...🧸♥️𓆰  قد يستغرق الأمر بضع دقـائق إذا كان حجـم الملف كبيـراً**",
     )
+    reply_to_id = await reply_id(event)
+    input_str = event.pattern_match.group(1)
     if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
         os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
     if event.reply_to_msg_id:
@@ -146,7 +145,7 @@ async def _(event):
             reply_message,
             downloaded_file_name,
             progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-                progress(d, t, zedevent, c_time, "جـارِ التنزيـل...", file_name)
+                progress(d, t, catevent, c_time, "جـارِ التنزيـل...", file_name)
             ),
         )
         end = datetime.now()
@@ -174,11 +173,28 @@ async def _(event):
             end_two = datetime.now()
             os.remove(downloaded_file_name)
             ms_two = (end_two - end).seconds
-            await zedevent.edit(
+            await catevent.edit(
                 f"**⌔∮تم تنزيل الملف بتنسيق** {ms_one} **ثوان.**\n**تم التنزيل في** {ms_two} **ثوان.**"
             )
             await asyncio.sleep(3)
-            await zedevent.delete()
+            await catevent.delete()
         else:
-            await zedevent.edit("File Not Found {}".format(input_str))
+            await catevent.edit("File Not Found {}".format(input_str))
+    else:
+        await catevent.edit(
+            "**Syntax : **`.rnupload file.name` as reply to a Telegram media"
+        )
 
+
+CMD_HELP.update(
+    {
+        "تسمية الميديا": "**اسم الاضافـه : **`تسمية الميديا`\
+        \n\n  •  **Syntax : **`.rename filename`\
+        \n  •  **Function : **__Reply to media with above command to save in your server with that given filename__\
+        \n\n  •  **╮•❐ الامـر ⦂ **`.إسم + الاسم الجديد`\
+        \n  •  **الشـرح •• **__قم بالرد على الميـديا باستخدام الأمر أعلاه لإعادة تسمية وتحميل الملف بالاسم المحدد كــ ملف بنفس الصيغـه__\
+        \n\n  •  **╮•❐ الامـر ⦂ **`.اسم + الاسم الجديد`\
+        \n  •  **الشـرح •• **__قم بالرد على الميـديا باستخدام الأمر أعلاه لإعادة تسمية وتحميل الملف بالاسم المحدد كــ ملف __\
+        "
+    }
+)

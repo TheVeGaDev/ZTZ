@@ -1,36 +1,26 @@
+#ZedThon
+
 import random
 
 from telethon.errors.rpcbaseerrors import ForbiddenError
 from telethon.errors.rpcerrorlist import PollOptionInvalidError
 from telethon.tl.types import InputMediaPoll, Poll
 
-from . import zedub
-
-from ..core.managers import edit_or_reply
-from . import Build_Poll, reply_id
-
-plugin_category = "البوت"
+from . import Build_Poll
 
 
-@zedub.zed_cmd(
-    pattern="استفتاء(?:\s|$)([\s\S]*)",
-    command=("استفتاء", plugin_category),
-    info={
-        "header": "To create a poll.",
-        "description": "If you doesnt give any input it sends a default poll",
-        "usage": ["{tr}poll", "{tr}poll question ; option 1; option2"],
-        "examples": "{tr}poll Are you an early bird or a night owl ;Early bird ; Night owl",
-    },
-)
-async def pollcreator(catpoll):
-    "To create a poll"
-    reply_to_id = await reply_id(catpoll)
-    string = "".join(catpoll.text.split(maxsplit=1)[1:])
+@bot.on(admin_cmd(pattern="استفتاء( (.*)|$)"))
+@bot.on(sudo_cmd(pattern="استفتاء( (.*)|$)", allow_sudo=True))
+async def pollcreator(zedpoll):
+    reply_to_id = None
+    if zedpoll.reply_to_msg_id:
+        reply_to_id = zedpoll.reply_to_msg_id
+    string = "".join(zedpoll.text.split(maxsplit=1)[1:])
     if not string:
         options = Build_Poll(["- ايي 😊✌️", "- لاع 😏😕", "- مادري 🥱🙄"])
         try:
-            await catpoll.client.send_message(
-                catpoll.chat_id,
+            await bot.send_message(
+                zedpoll.chat_id,
                 file=InputMediaPoll(
                     poll=Poll(
                         id=random.getrandbits(32),
@@ -40,43 +30,56 @@ async def pollcreator(catpoll):
                 ),
                 reply_to=reply_to_id,
             )
-            await catpoll.delete()
+            await zedpoll.delete()
         except PollOptionInvalidError:
             await edit_or_reply(
-                catpoll, "**⌔∮ الاستفتاء المستخدم غير صالح (قد تكون المعلومات طويلة جدا).**"
+                zedpoll,
+                "⌔∮ الاستفتاء المستخدم غير صالح (قد تكون المعلومات طويلة جدا).",
             )
         except ForbiddenError:
-            await edit_or_reply(catpoll, "**⌔∮ هذه الدردشة تحظر استطلاعات الرأي. **")
+            await edit_or_reply(zedpoll, "⌔∮ هذه الدردشة تحظر استطلاعات الرأي. ")
         except exception as e:
-            await edit_or_reply(catpoll, str(e))
+            await edit_or_reply(zedpoll, str(e))
     else:
-        catinput = string.split("|")
-        if len(catinput) > 2 and len(catinput) < 12:
-            options = Build_Poll(catinput[1:])
+        zedinput = string.split("|")
+        if len(zedinput) > 2 and len(zedinput) < 12:
+            options = Build_Poll(zedinput[1:])
             try:
-                await catpoll.client.send_message(
-                    catpoll.chat_id,
+                await bot.send_message(
+                    zedpoll.chat_id,
                     file=InputMediaPoll(
                         poll=Poll(
                             id=random.getrandbits(32),
-                            question=catinput[0],
+                            question=zedinput[0],
                             answers=options,
                         )
                     ),
                     reply_to=reply_to_id,
                 )
-                await catpoll.delete()
+                await zedpoll.delete()
             except PollOptionInvalidError:
                 await edit_or_reply(
-                    catpoll,
-                    "**⌔∮ الاستفتاء المستخدم غير صالح (قد تكون المعلومات طويلة جدا).**",
+                    icsspoll,
+                    "⌔∮ الاستفتاء المستخدم غير صالح (قد تكون المعلومات طويلة جدا).",
                 )
             except ForbiddenError:
-                await edit_or_reply(catpoll, "**⌔∮ هذه الدردشة تحظر استطلاعات الرأي. **")
+                await edit_or_reply(zedpoll, "⌔∮ هذه الدردشة تحظر استطلاعات الرأي. ")
             except Exception as e:
-                await edit_or_reply(catpoll, str(e))
+                await edit_or_reply(zedpoll, str(e))
         else:
             await edit_or_reply(
-                catpoll,
-                "**⌔∮عـذراً عـزيـزي .. انت تكتب الامـر بشكـل خاطئ يجب عليك اعـادة كتابتـه بالشكـل التـالي :**\n\n`.استفتاء السؤال | الجواب الاول | الجواب الثاني`\n**⌔∮لا تنسـى كتابـة الرمـز | بيـن كـل جـواب والثـاني**",
+                zedpoll,
+                "**⌔∮ انت تكتب الامر بشكل خاطئ يجب عليك كتابته بهذا الشكل** `.استفتاء السؤال | الجواب الاول | الجواب الثاني`",
             )
+
+
+CMD_HELP.update(
+    {
+        "استفتاء": "**اسم الاضافـه :**`استفتاء`\
+        \n\n**╮•❐ الامـر ⦂** `.استفتاء`\
+        \n**الشـرح •• **إذا لم تقدم أي مدخلات ، فإنها ترسل استطلاعًا افتراضيًا. إذا كنت ترغب في تخصيصه ، فاستخدم بناء الجملة هذا :\
+        \n `.استفتاء السؤال | الجواب الاول | الجواب الثاني`\
+        \n '|' هذا الرمز يفصل بين كل خيار وسؤال \
+        "
+    }
+)

