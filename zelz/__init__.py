@@ -24,8 +24,8 @@ bot = zedub
 StartTime = time.time()
 zedversion = "3.3.2"
 
-if Config.UPSTREAM_REPO == "ZThon-Ar":
-    UPSTREAM_REPO_URL = "https://github.com/ZThon-Ar/ZTZ"
+if Config.UPSTREAM_REPO == "TheVeGaDev":
+    UPSTREAM_REPO_URL = "https://github.com/TheVeGaDev/ZTZ"
 else:
     UPSTREAM_REPO_URL = Config.UPSTREAM_REPO
 
